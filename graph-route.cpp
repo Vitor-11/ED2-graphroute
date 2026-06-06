@@ -6,13 +6,15 @@
 #include <unordered_set>
 #include <vector>
 
+using namespace std;
+
 struct Grafo
 {
-    std::unordered_map<std::string, std::unordered_set<std::string>> adj;
+    unordered_map<string, unordered_set<string>> adj;
 
-    std::unordered_set<std::string> vertices;
+    unordered_set<string> vertices;
 
-    void inserirVertice(const std::string &ip)
+    void inserirVertice(const string &ip)
     {
         vertices.insert(ip);
         if (adj.find(ip) == adj.end())
@@ -21,7 +23,7 @@ struct Grafo
         }
     }
 
-    bool inserirAresta(const std::string &origem, const std::string &destino)
+    bool inserirAresta(const string &origem, const string &destino)
     {
         inserirVertice(origem);
         inserirVertice(destino);
@@ -43,19 +45,53 @@ struct Grafo
 
     void imprimir() const
     {
-        std::cout << "\nLista de Adjacência:\n";
+        cout << "\nLista de Adjacência:\n";
         for (const auto &[ip, vizinhos] : adj)
         {
-            std::cout << "  " << ip << " →";
+            cout << "  " << ip << " →";
             if (vizinhos.empty())
             {
-                std::cout << " (sem saída)";
+                cout << " (sem saída)";
             }
             for (const auto &v : vizinhos)
             {
-                std::cout << " " << v;
+                cout << " " << v;
             }
-            std::cout << "\n";
+            cout << "\n";
         }
     }
 };
+
+string trim(const string &s)
+{
+    const string brancos = " \t\r\n";
+    size_t inicio = s.find_first_not_of(brancos);
+    if (inicio == string::npos)
+        return "";
+    size_t fim = s.find_last_not_of(brancos);
+    return s.substr(inicio, fim - inicio + 1);
+}
+
+vector<string> splitCSV(const string &linha, char delim = ',')
+{
+    vector<string> colunas;
+    stringstream ss(linha);
+    string campo;
+    while (getline(ss, campo, delim))
+    {
+        colunas.push_back(trim(campo));
+    }
+    return colunas;
+}
+
+int main()
+{
+    Grafo g;
+
+    g.inserirAresta("82.66.191.65", "192.168.3.1");
+    g.inserirAresta("192.168.3.1", "194.149.162.248");
+    g.inserirAresta("194.149.162.248", "194.149.162.250");
+
+    cout << "total de vertices: " << g.totalVertices() << endl;
+    cout << "total de arestas: " << g.totalArestas() << endl;
+}
