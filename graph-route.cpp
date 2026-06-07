@@ -45,13 +45,13 @@ struct Grafo
 
     void imprimir() const
     {
-        cout << "\nLista de Adjacência:\n";
+        cout << "\nLista de Adjacencia:\n";
         for (const auto &[ip, vizinhos] : adj)
         {
-            cout << "  " << ip << " →";
+            cout << "  " << ip << " ->";
             if (vizinhos.empty())
             {
-                cout << " (sem saída)";
+                cout << " (sem saida)";
             }
             for (const auto &v : vizinhos)
             {
@@ -84,14 +84,69 @@ vector<string> splitCSV(const string &linha, char delim = ',')
     return colunas;
 }
 
+const int COL_HOP_FROM = 4;
+const int COL_HOP_TO = 5;
+const int COLUNAS_MIN = 6;
+
+bool carregarLog(const string &caminho, Grafo &grafo)
+{
+    ifstream arquivo(caminho);
+    if (!arquivo.is_open())
+    {
+        cerr << "ERRO: NÃO FOI POSSÍVEL ABRIR O CAMINHO \"" << caminho << "\".\n";
+        return false;
+    }
+
+    string linha;
+    int numLinha = 0;
+
+    if (!getline(arquivo, linha))
+    {
+        cerr << "ERRO: ARQUIVO VAZIO OU SEM CABEÇALHO.\n";
+        return false;
+    }
+    numLinha++;
+
+    while (getline(arquivo, linha))
+    {
+        numLinha++;
+
+        if (trim(linha).empty()) { continue;}
+
+        auto colunas = splitCSV(linha);
+
+        if ((int)colunas.size() < COLUNAS_MIN)
+        {
+            cerr << "  [linha " << numLinha << "] colunas insuficientes.\n";
+            continue;
+        }
+
+        const string &hopFrom = colunas[COL_HOP_FROM];
+        const string &hopTo = colunas[COL_HOP_TO];
+
+        if (hopFrom.empty() || hopTo.empty()) { continue;}
+
+        if (hopTo == "*") { continue;}
+
+        grafo.inserirAresta(hopFrom, hopTo);
+    }
+
+    return true;
+}
+
 int main()
 {
     Grafo g;
 
-    g.inserirAresta("82.66.191.65", "192.168.3.1");
-    g.inserirAresta("192.168.3.1", "194.149.162.248");
-    g.inserirAresta("194.149.162.248", "194.149.162.250");
+    if (!carregarLog("input_1.log", g)) { return 1;}
+   // if (!carregarLog("input_2.log", g)) { return 1;}
+   // if (!carregarLog("input_3.log", g)) { return 1;}
 
-    cout << "total de vertices: " << g.totalVertices() << endl;
-    cout << "total de arestas: " << g.totalArestas() << endl;
+    cout << "Carregamento concluido\n";
+    cout << "  Numero de vertices: " << g.totalVertices() << "\n";
+    cout << "  Arestas inseridas: " << g.totalArestas() << "\n";
+
+    g.imprimir();
+
+    return 0;
 }
