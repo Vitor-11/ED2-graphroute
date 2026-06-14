@@ -275,7 +275,8 @@ string gerarDot(const Grafo& g, const vector<string>& caminho = {}) {
 
 void executarGraphviz(const string& conteudoDot, const string& nomeArquivoEntrada, int formato) {
    
-    const string dotPath = "/tmp/graphroute_tmp.dot";
+    //const string dotPath = "/tmp/graphroute_tmp.dot";
+    const string dotPath = "graphroute_tmp.dot";
     ofstream dotFile(dotPath);
     dotFile << conteudoDot;
     dotFile.close();
@@ -301,20 +302,53 @@ void executarGraphviz(const string& conteudoDot, const string& nomeArquivoEntrad
         if (system(cmd.c_str()) == 0)
             cout << "Arquivo " << saida << " gerado com sucesso.\n";
         else
-            cerr << "Erro ao gerar PDF. Verifique se o Graphviz esta instalado.\n";
+            cerr << "Erro ao gerar PDF.\n";
     }
 }
+
+void opcaoDiametro(const Grafo& g) {
+    int d = calcularDiametro(g);
+    if (d == 0)
+        cout << "O grafo nao possui caminhos entre vertices distintos (diametro = 0).\n";
+    else
+        cout << "Diametro do grafo: " << d << " salto(s).\n";
+}
+ 
+void opcaoRoteadoresCriticos(const Grafo& g) {
+    exibirTopRoteadores(g);
+}
+
+void menuPrincipal(const Grafo& g, const string& nomeArquivo) {
+    int opcao = -1;
+    while (opcao != 0) {
+        cout << "\n======================================================\n";
+        cout << "1. Calcular o Diametro do Grafo\n";
+        cout << "2. Identificar Roteadores Criticos\n";
+        cout << "0. Sair\n";
+        cout << "======================================================\n";
+        cout << "Escolha uma opcao: ";
+        cin >> opcao;
+ 
+        switch (opcao) {
+            case 1: opcaoDiametro(g);                        break;
+            case 2: opcaoRoteadoresCriticos(g);              break;
+            case 0: cout << "Encerrando.\n";            break;
+            default: cout << "Opcao invalida.\n";       break;
+        }
+    }
+}
+
 
 int main()
 {
     Grafo g;
 
-    if (!carregarLog("input_1.log", g)) { return 1;}
-   // if (!carregarLog("input_2.log", g)) { return 1;}
-   // if (!carregarLog("input_3.log", g)) { return 1;}
+   //if (!carregarLog("input_1.log", g)) { return 1;}
+   //if (!carregarLog("input_2.log", g)) { return 1;}
+   if (!carregarLog("input_3.log", g)) { return 1;}
 
-    cout << "  Numero de vertices: " << g.totalVertices() << "\n";
-    cout << "  Arestas inseridas: " << g.totalArestas() << "\n";
+    //cout << "  Numero de vertices: " << g.totalVertices() << "\n";
+    //cout << "  Arestas inseridas: " << g.totalArestas() << "\n";
 
     cout << "--- Teste 1: Top 5 Roteadores Criticos ---\n";
     exibirTopRoteadores(g);
@@ -326,15 +360,11 @@ int main()
 
     cout << "\n--- Teste 3: BFS ---\n";
     
-    string origem = "192.168.3.1";
-    string destino = "212.27.35.12";
+    string origem = "192.168.1.1";
+    string destino = "192.203.230.10";
 
     if (g.vertices.size() >= 2) {
-        auto it = g.vertices.begin();
-        origem = *it;
-        
-        std::advance(it, g.vertices.size() / 2);
-        destino = *it;
+
 
         cout << "Buscando melhor caminho de [" << origem << "] para [" << destino << "]\n";
         vector<string> caminho = bfs(g, origem, destino);
@@ -354,8 +384,14 @@ int main()
     string dotStr = gerarDot(g, caminho);
 
     cout << "Exportar como PNG\n";
-    executarGraphviz(dotStr, "input_1.log", 2);
+    executarGraphviz(dotStr, "input_3.log", 2);
+    
+    cout << "Exportar como PDF\n";
+    executarGraphviz(dotStr, "input_3.log", 3);
+
     }
+
+     menuPrincipal(g, "input_3.log");
     //g.imprimir();
 
     return 0;
