@@ -309,13 +309,75 @@ void executarGraphviz(const string& conteudoDot, const string& nomeArquivoEntrad
 void opcaoDiametro(const Grafo& g) {
     int d = calcularDiametro(g);
     if (d == 0)
-        cout << "O grafo nao possui caminhos entre vertices distintos (diametro = 0).\n";
+        cout << "\nO grafo nao possui caminhos entre vertices distintos (diametro = 0).\n";
     else
-        cout << "Diametro do grafo: " << d << " salto(s).\n";
+        cout << "\nDiametro do grafo: " << d << " salto(s).\n";
 }
  
 void opcaoRoteadoresCriticos(const Grafo& g) {
     exibirTopRoteadores(g);
+}
+
+void submenuGraphviz(const Grafo& g,
+                     const string& nomeArquivoEntrada,
+                     const vector<string>& caminho = {})
+{
+    cout << "\nSelecione o formato de saida do Graphviz:\n";
+    cout << "  1. Tela\n";
+    cout << "  2. Imagem (PNG)\n";
+    cout << "  3. Documento (PDF)\n";
+    cout << "Opcao: ";
+ 
+    int opcao;
+    cin >> opcao;
+ 
+    if (opcao < 1 || opcao > 3) {
+        cout << "Opcao invalida.\n";
+        return;
+    }
+ 
+    string dot = gerarDot(g, caminho);
+    executarGraphviz(dot, nomeArquivoEntrada, opcao);
+}
+
+void opcaoExibirGrafo(const Grafo& g, const string& nomeArquivo) {
+    submenuGraphviz(g, nomeArquivo);
+}
+ 
+void opcaoMenorCaminho(const Grafo& g, const string& nomeArquivo) {
+    string origem, destino;
+    cout << "Digite o IP de Origem : ";
+    cin >> origem;
+    cout << "Digite o IP de Destino: ";
+    cin >> destino;
+ 
+    if (g.vertices.count(origem) == 0) {
+        cout << "IP de origem nao encontrado no grafo: " << origem << "\n";
+        return;
+    }
+    if (g.vertices.count(destino) == 0) {
+        cout << "IP de destino nao encontrado no grafo: " << destino << "\n";
+        return;
+    }
+ 
+    vector<string> caminho = bfs(g, origem, destino);
+ 
+    if (caminho.empty()) {
+        cout << "Sem conectividade entre " << origem << " e " << destino << ".\n";
+        submenuGraphviz(g, nomeArquivo); 
+        return;
+    }
+ 
+    int saltos = (int)caminho.size() - 1;
+    cout << "\nCaminho encontrado (" << saltos << " salto"
+              << (saltos != 1 ? "s" : "") << "):\n";
+    for (int i = 0; i < (int)caminho.size(); i++) {
+        if (i > 0) cout << " -> ";
+        cout << caminho[i];
+    }
+    cout << "\n";
+ 
+    submenuGraphviz(g, nomeArquivo, caminho);
 }
 
 void menuPrincipal(const Grafo& g, const string& nomeArquivo) {
@@ -324,16 +386,20 @@ void menuPrincipal(const Grafo& g, const string& nomeArquivo) {
         cout << "\n======================================================\n";
         cout << "1. Calcular o Diametro do Grafo\n";
         cout << "2. Identificar Roteadores Criticos\n";
+        cout << "3. Exibir Grafo Completo\n";
+        cout << "4. Encontrar Menor Caminho\n";
         cout << "0. Sair\n";
         cout << "======================================================\n";
         cout << "Escolha uma opcao: ";
         cin >> opcao;
  
         switch (opcao) {
-            case 1: opcaoDiametro(g);                        break;
-            case 2: opcaoRoteadoresCriticos(g);              break;
-            case 0: cout << "Encerrando.\n";            break;
-            default: cout << "Opcao invalida.\n";       break;
+            case 1: opcaoDiametro(g); break;
+            case 2: opcaoRoteadoresCriticos(g); break;
+            case 3: opcaoExibirGrafo(g, nomeArquivo); break;
+            case 4: opcaoMenorCaminho(g, nomeArquivo); break;
+            case 0: cout << "Encerrando.\n"; break;
+            default: cout << "Opcao invalida.\n"; break;
         }
     }
 }
@@ -341,58 +407,32 @@ void menuPrincipal(const Grafo& g, const string& nomeArquivo) {
 
 int main()
 {
+    string caminho;
+    int opcao = -1;
+    cout << "\n===============Escolha o arquivo de log===============\n";
+    cout << "1. input_1.log\n";
+    cout << "2. input_2.log\n";
+    cout << "3. input_3.log\n";
+    cout << "0. Sair\n";
+    cin >> opcao;
+    switch (opcao) {
+        case 1: caminho = "input_1.log"; cout << "Carregando arquivo: " << caminho << "\n"; break;
+        case 2: caminho = "input_2.log"; cout << "Carregando arquivo: " << caminho << "\n"; break;
+        case 3: caminho = "input_3.log"; cout << "Carregando arquivo: " << caminho << "\n"; break;
+        case 0: cout << "Encerrando.\n"; break;                
+        default: cout << "Opcao invalida.\n"; break;
+    }
     Grafo g;
 
-   //if (!carregarLog("input_1.log", g)) { return 1;}
-   //if (!carregarLog("input_2.log", g)) { return 1;}
-   if (!carregarLog("input_3.log", g)) { return 1;}
-
-    //cout << "  Numero de vertices: " << g.totalVertices() << "\n";
-    //cout << "  Arestas inseridas: " << g.totalArestas() << "\n";
-
-    cout << "--- Teste 1: Top 5 Roteadores Criticos ---\n";
-    exibirTopRoteadores(g);
-    cout << "\n";
-
-    cout << "--- Teste 2: Diametro do Grafo ---\n";
-    int diametro = calcularDiametro(g);
-    cout << "Diametro calculado: " << diametro << " saltos.\n";
-
-    cout << "\n--- Teste 3: BFS ---\n";
-    
-    string origem = "192.168.1.1";
-    string destino = "192.203.230.10";
-
-    if (g.vertices.size() >= 2) {
-
-
-        cout << "Buscando melhor caminho de [" << origem << "] para [" << destino << "]\n";
-        vector<string> caminho = bfs(g, origem, destino);
-
-        if (caminho.empty()) {
-            cout << "Nenhum caminho encontrado entre os roteadores selecionados.\n";
-        } else {
-            cout << "Caminho encontrado (" << caminho.size() - 1 << " saltos): \n  ";
-            for (size_t i = 0; i < caminho.size(); i++) {
-                cout << caminho[i] << (i + 1 == caminho.size() ? "" : " -> ");
-            }
-            cout << "\n";
-        }
-
-    cout << "\n--- Teste 4: Gerar DOT e Exportar Imagem ---\n";
-    cout << "Representacao em DOT destacando o caminho encontrado\n";
-    string dotStr = gerarDot(g, caminho);
-
-    cout << "Exportar como PNG\n";
-    executarGraphviz(dotStr, "input_3.log", 2);
-    
-    cout << "Exportar como PDF\n";
-    executarGraphviz(dotStr, "input_3.log", 3);
-
+    if (!carregarLog(caminho, g))
+    {
+        return 1;
     }
 
-     menuPrincipal(g, "input_3.log");
-    //g.imprimir();
-
+    
+    cout << "\n  Numero de vertices: " << g.totalVertices() << "\n";
+    cout << "  Arestas inseridas: " << g.totalArestas() << "\n";
+    
+    menuPrincipal(g, caminho);
     return 0;
 }
