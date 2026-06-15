@@ -414,6 +414,7 @@ int main()
     cout << "2. input_2.log\n";
     cout << "3. input_3.log\n";
     cout << "0. Sair\n";
+    cout << "Escolha uma opcao: ";
     cin >> opcao;
     switch (opcao) {
         case 1: caminho = "input_1.log"; cout << "Carregando arquivo: " << caminho << "\n"; break;
