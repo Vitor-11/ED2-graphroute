@@ -405,24 +405,16 @@ void menuPrincipal(const Grafo& g, const string& nomeArquivo) {
 }
 
 
-int main()
+int main(int argc, char* argv[])
 {
-    string caminho;
-    int opcao = -1;
-    cout << "\n===============Escolha o arquivo de log===============\n";
-    cout << "1. input_1.log\n";
-    cout << "2. input_2.log\n";
-    cout << "3. input_3.log\n";
-    cout << "0. Sair\n";
-    cout << "Escolha uma opcao: ";
-    cin >> opcao;
-    switch (opcao) {
-        case 1: caminho = "input_1.log"; cout << "Carregando arquivo: " << caminho << "\n"; break;
-        case 2: caminho = "input_2.log"; cout << "Carregando arquivo: " << caminho << "\n"; break;
-        case 3: caminho = "input_3.log"; cout << "Carregando arquivo: " << caminho << "\n"; break;
-        case 0: cout << "Encerrando.\n"; break;                
-        default: cout << "Opcao invalida.\n"; break;
+    if (argc < 2) {
+       cout << "\tDigite o nome do arquivo .log a ser lido depois do .\\graph-route.exe\n";
+       cout << "\tO arquivo .log e o código devem estar na mesma pasta";
+    return 1;
     }
+ 
+    const std::string caminho = argv[1];
+
     Grafo g;
 
     if (!carregarLog(caminho, g))
