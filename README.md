@@ -34,7 +34,7 @@ O programa lê arquivos de log no formato CSV gerados por medições de tracerou
 g++ graph-route.cpp -o graph-route.exe
 
 # Executar (o arquivo de log deve estar na mesma pasta)
-./graph-route input_1.log
+.\graph-route.exe input_1.log
 ```
 ---
 
