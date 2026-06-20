@@ -31,7 +31,7 @@ O programa lê arquivos de log no formato CSV gerados por medições de tracerou
 
 ```bash
 # Compilar
-g++ graph-route -o graph-route.cpp
+g++ graph-route.cpp -o graph-route.exe
 
 # Executar (o arquivo de log deve estar na mesma pasta)
 ./graph-route input_1.log
